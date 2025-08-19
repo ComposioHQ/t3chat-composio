@@ -14,7 +14,7 @@
     "@ai-sdk/groq": "^2.0.8",
     "@ai-sdk/openai": "^2.0.12",
     "@composio/core": "^0.1.43",
-    "@composio/vercel": "^0.1.43",
+    "@composio/vercel": "^0.2.0",
     "@next/font": "^14.2.15",
     "@tailwindcss/typography": "^0.5.16",
     "ai": "^5.0.12",
