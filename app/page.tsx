@@ -1068,7 +1068,7 @@ export default function Home() {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="flex items-center gap-1 rounded-2xl bg-[#fdf7fd] px-4 py-3">
+                  <div className="flex items-center gap-1 rounded-2xl bg-card px-4 py-3">
                     <span className="typing-dot"></span>
                     <span className="typing-dot"></span>
                     <span className="typing-dot"></span>
