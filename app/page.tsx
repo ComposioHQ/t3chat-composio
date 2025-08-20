@@ -1,7 +1,11 @@
 "use client";
 
 import React from "react";
-import ReactMarkdown from 'react-markdown';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { MessageActions } from '@/components/MessageActions';
+import { ToolCallComponent } from '@/components/ToolCall';
+import { ToolsModalContent } from '@/components/ToolsModalContent';
+import type { ChatMessage, Thread, ToolCall, ToolResult } from '@/lib/chatTypes';
 
 function IconHamburger() {
   return (
@@ -142,19 +146,7 @@ function ChipButton({ icon, label }: { icon: React.ReactNode; label: string }) {
   );
 }
 
-type ChatMessage = { 
-  id: string; 
-  role: "user" | "assistant"; 
-  content: string;
-  toolCalls?: ToolCall[];
-  toolResults?: ToolResult[];
-  model?: string;
-  tokensPerSecond?: number;
-  totalTokens?: number;
-  timeToFirstToken?: number;
-  timestamp?: number;
-};
-type Thread = { id: string; title: string; messages: ChatMessage[] };
+// Types moved to lib/chatTypes
 
 type Category = "create" | "explore" | "code" | "learn";
 
@@ -185,304 +177,13 @@ const categoryPrompts: Record<Category, string[]> = {
   ]
 };
 
-interface Toolkit {
-  slug: string;
-  name: string;
-  meta: {
-    description: string;
-    logo: string;
-    tools_count: number;
-    categories: Array<{id: string; name: string}>;
-  };
-  tools?: Tool[];
-}
+// Interfaces moved to lib/chatTypes
 
-interface Tool {
-  name: string;
-  slug: string;
-  description: string;
-  displayName: string;
-}
+// MessageActions extracted to components/MessageActions
 
-interface ToolCall {
-  type: 'tool-call';
-  toolName: string;
-  toolCallId: string;
-  args: any;
-}
+// ToolCallComponent extracted to components/ToolCall
 
-interface ToolResult {
-  type: 'tool-result';
-  toolCallId: string;
-  toolName: string;
-  result: any;
-}
-
-function MessageActions({ 
-  message, 
-  onCopy, 
-  onBranchOff, 
-  onRetry 
-}: { 
-  message: ChatMessage; 
-  onCopy: () => void; 
-  onBranchOff: () => void; 
-  onRetry: () => void; 
-}) {
-  const [copied, setCopied] = React.useState(false);
-  
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(message.content);
-    setCopied(true);
-    onCopy();
-    setTimeout(() => setCopied(false), 2000);
-  };
-  
-  const formatDuration = (ms?: number) => {
-    if (!ms) return null;
-    return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(2)} sec`;
-  };
-  
-  return (
-    <div className="mt-3 flex items-center justify-between text-xs border-t border-rose-200/30 pt-2">
-      <div className="flex items-center gap-1">
-        <button
-          onClick={handleCopy}
-          className="p-1.5 rounded-md hover:bg-rose-100/40 transition-colors hover:text-[#432A78]"
-          style={{ color: '#432A78' }}
-          title={copied ? 'Copied!' : 'Copy message'}
-        >
-          <IconCopy />
-        </button>
-        
-        <button
-          onClick={onBranchOff}
-          className="p-1.5 rounded-md hover:bg-rose-100/40 transition-colors hover:text-[#432A78]"
-          style={{ color: '#432A78' }}
-          title="Branch off to new conversation with different model"
-        >
-          <IconBranch />
-        </button>
-        
-        <button
-          onClick={onRetry}
-          className="p-1.5 rounded-md hover:bg-rose-100/40 transition-colors hover:text-[#432A78]"
-          style={{ color: '#432A78' }}
-          title="Retry message"
-        >
-          <IconRefresh />
-        </button>
-      </div>
-      
-      <div className="flex items-center gap-3 font-medium" style={{ color: '#432A78' }}>
-        {message.model && (
-          <span className="text-xs">{message.model}</span>
-        )}
-        {message.tokensPerSecond && (
-          <span className="text-xs">{message.tokensPerSecond.toFixed(2)} tok/sec</span>
-        )}
-        {message.totalTokens && (
-          <span className="text-xs">{message.totalTokens} tokens</span>
-        )}
-        {message.timeToFirstToken && (
-          <span className="text-xs">Time-to-First: {formatDuration(message.timeToFirstToken)}</span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ToolCallComponent({ toolCall, toolResult }: { toolCall: ToolCall; toolResult?: ToolResult }) {
-  const [isExpanded, setIsExpanded] = React.useState(false);
-  const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
-  
-  const getToolIcon = (toolName: string) => {
-    if (toolName.includes('GMAIL')) return '✉️';
-    if (toolName.includes('CALENDAR')) return '📅';
-    if (toolName.includes('GITHUB')) return '🐙';
-    if (toolName.includes('SLACK')) return '💬';
-    return '🔧';
-  };
-  
-  const getToolDisplayName = (toolName: string) => {
-    return toolName.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
-  };
-  
-  React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem('t3chat:toolkits');
-      if (!raw) return;
-      const items = JSON.parse(raw) as Array<{ slug: string; name: string; meta?: { logo?: string } }>;
-      const prefix = (toolCall.toolName || '').split('_')[0]?.toLowerCase() || '';
-      const match = items.find((tk) =>
-        tk.slug?.toLowerCase().includes(prefix) || tk.name?.toLowerCase().includes(prefix)
-      );
-      if (match?.meta?.logo) setLogoUrl(match.meta.logo);
-    } catch {}
-  }, [toolCall.toolName]);
-  
-  return (
-    <div className="my-3 w-full rounded-2xl border border-rose-200/70 bg-[#f5dbef] p-4 shadow-sm">
-      <div className="flex items-center justify-between gap-4 min-h-[72px]">
-        <div className="flex items-center gap-3">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-white/80 text-[#ca0277] shadow-sm overflow-hidden">
-            {logoUrl ? (
-              <img src={logoUrl} alt="toolkit logo" className="h-5 w-5 object-contain" />
-            ) : (
-              <span className="text-base">{getToolIcon(toolCall.toolName)}</span>
-            )}
-          </div>
-          <div>
-            <div className="font-semibold text-[#ca0277]">{getToolDisplayName(toolCall.toolName)}</div>
-            <div className="text-xs text-[#6F4DA3]">
-              {toolResult ? '✅ Completed' : '⏳ Running...'}
-            </div>
-          </div>
-        </div>
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="text-[#ca0277] hover:text-[#ca0277]/80 text-sm font-medium underline-offset-2 hover:underline"
-        >
-          {isExpanded ? 'Hide details' : 'Show details'}
-        </button>
-      </div>
-      
-      {isExpanded && (
-        <div className="mt-4 space-y-3">
-          <div>
-            <div className="mb-1 text-xs font-medium text-[#6F4DA3]">Input:</div>
-            <div className="rounded-lg border border-white/70 bg-white/60 p-2 font-mono text-xs text-[#432A78]">
-              {JSON.stringify(toolCall.args, null, 2)}
-            </div>
-          </div>
-          
-          {toolResult && (
-            <div>
-              <div className="mb-1 text-xs font-medium text-[#6F4DA3]">Output:</div>
-              <div className="max-h-40 overflow-y-auto rounded-lg border border-white/70 bg-white/60 p-2 font-mono text-xs text-[#432A78]">
-                {JSON.stringify(toolResult.result, null, 2)}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ToolsModalContent({ 
-  selectedTools, 
-  setSelectedTools 
-}: { 
-  selectedTools: string[]; 
-  setSelectedTools: (tools: string[]) => void; 
-}) {
-  const [toolkits, setToolkits] = React.useState<Toolkit[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [expandedToolkit, setExpandedToolkit] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    async function fetchToolkits() {
-      try {
-        const response = await fetch('/api/toolkits');
-        const data = await response.json();
-        setToolkits(data.items || []);
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchToolkits();
-  }, []);
-
-  const toggleTool = (toolSlug: string) => {
-    if (selectedTools.includes(toolSlug)) {
-      setSelectedTools(selectedTools.filter(t => t !== toolSlug));
-    } else {
-      setSelectedTools([...selectedTools, toolSlug]);
-    }
-  };
-
-  const expandToolkit = async (toolkit: Toolkit) => {
-    if (expandedToolkit === toolkit.slug) {
-      setExpandedToolkit(null);
-      return;
-    }
-
-    if (!toolkit.tools) {
-      // Fetch tools for this toolkit
-      try {
-        const response = await fetch(`/api/toolkits/${toolkit.slug}/tools`);
-        const data = await response.json();
-        toolkit.tools = data.items || [];
-        setToolkits([...toolkits]); // Trigger re-render
-      } catch (error) {
-      }
-    }
-    
-    setExpandedToolkit(toolkit.slug);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#aa4673]"></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      {toolkits.map((toolkit) => (
-        <div key={toolkit.slug} className="border border-gray-200 rounded-lg overflow-hidden">
-          <button
-            onClick={() => expandToolkit(toolkit)}
-            className="w-full p-4 text-left hover:bg-gray-50 flex items-center justify-between"
-          >
-            <div className="flex items-center space-x-3">
-              {toolkit.meta.logo && (
-                <img src={toolkit.meta.logo} alt={toolkit.name} className="w-8 h-8" />
-              )}
-              <div>
-                <h3 className="font-medium text-gray-900">{toolkit.name}</h3>
-                <p className="text-sm text-gray-500">{toolkit.meta.description}</p>
-                <p className="text-xs text-gray-400">{toolkit.meta.tools_count} tools</p>
-              </div>
-            </div>
-            <div className="text-gray-400">
-              {expandedToolkit === toolkit.slug ? '−' : '+'}
-            </div>
-          </button>
-          
-          {expandedToolkit === toolkit.slug && toolkit.tools && (
-            <div className="border-t border-gray-200 bg-gray-50">
-              <div className="p-4 space-y-2">
-                {toolkit.tools.map((tool) => (
-                  <label 
-                    key={tool.slug || tool.name} 
-                    className="flex items-start space-x-3 p-2 hover:bg-white rounded cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedTools.includes(tool.slug || tool.name)}
-                      onChange={() => toggleTool(tool.slug || tool.name)}
-                      className="mt-1 text-[#aa4673] focus:ring-[#aa4673]"
-                    />
-                    <div className="flex-1">
-                      <div className="font-medium text-sm text-gray-900">{tool.displayName || tool.name}</div>
-                      <div className="text-xs text-gray-500">{tool.description}</div>
-                      <div className="text-xs text-gray-400 font-mono">{tool.slug || tool.name}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
+// ToolsModalContent extracted to components/ToolsModalContent
 
 export default function Home() {
   const STORAGE_THREADS = "t3chat:threads";
@@ -511,26 +212,26 @@ export default function Home() {
   const modelOptions = React.useMemo(
     () => [
       // OpenAI models (2025)
-      "o3",
-      "o4-mini",
-      "gpt-5",
-      "gpt-5-mini",
-      "gpt-5-nano",
-      "GPT-4.1",
-      "GPT-4.1 Mini",
+      // "o3",
+      // "o4-mini",
+      // "gpt-5",
+      // "gpt-5-mini",
+      // "gpt-5-nano",
+      // "GPT-4.1",
+      // "GPT-4.1 Mini",
       // Anthropic models (2025)
-      "Claude 4 Opus",
-      "Claude 4 Sonnet", 
-      "Claude 3.5 Sonnet",
-      "Claude 3.5 Haiku",
+      // "Claude 4 Opus",
+      // "Claude 4 Sonnet", 
+      // "Claude 3.5 Sonnet",
+      // "Claude 3.5 Haiku",
       // Google models (2025)
       "Gemini 2.5 Pro",
       "Gemini 2.5 Flash",
       "Gemini 2.0 Flash",
       "Gemini 2.0 Flash Thinking",
       // Groq models (2025)
-      "DeepSeek R1 Llama 70B",
-      "Llama 3.3 70B",
+      // "DeepSeek R1 Llama 70B",
+      // "Llama 3.3 70B",
     ],
     []
   );
@@ -564,26 +265,26 @@ export default function Home() {
       if (savedActive) setActiveThreadId(savedActive);
       const savedModel = localStorage.getItem(STORAGE_MODEL);
       if (savedModel) setSelectedModel(savedModel);
-    } catch {}
+    } catch { }
   }, []);
 
   // Persist threads, active thread, and model selection
   React.useEffect(() => {
     try {
       localStorage.setItem(STORAGE_THREADS, JSON.stringify(threads));
-    } catch {}
+    } catch { }
   }, [threads]);
 
   React.useEffect(() => {
     try {
       if (activeThreadId) localStorage.setItem(STORAGE_ACTIVE, activeThreadId);
-    } catch {}
+    } catch { }
   }, [activeThreadId]);
 
   React.useEffect(() => {
     try {
       localStorage.setItem(STORAGE_MODEL, selectedModel);
-    } catch {}
+    } catch { }
   }, [selectedModel]);
 
   // Ensure we always have a valid active thread id after hydration
@@ -592,7 +293,7 @@ export default function Home() {
       setActiveThreadId(threads[0].id);
     }
   }, [threads, activeThreadId]);
-  
+
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [threads, isLoading]);
@@ -612,7 +313,7 @@ export default function Home() {
 
   async function sendMessage(text: string, retryFromMessage?: ChatMessage) {
     if (!text.trim()) return;
-    
+
     let targetMessages: ChatMessage[];
     if (retryFromMessage) {
       // Find the index of the message we're retrying from
@@ -622,14 +323,14 @@ export default function Home() {
     } else {
       targetMessages = activeThread.messages;
     }
-    
-    const userMsg: ChatMessage = { 
-      id: crypto.randomUUID(), 
-      role: "user", 
+
+    const userMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
       content: text.trim(),
       timestamp: Date.now()
     };
-    
+
     const optimistic = threads.map((t) => {
       if (t.id !== activeThread.id) return t;
       const isFirst = targetMessages.length === 0;
@@ -656,23 +357,23 @@ export default function Home() {
 
       // If backend streams text/plain, read incrementally; else fall back to JSON
       const contentType = res.headers.get("content-type") || "";
-      
+
       if (contentType.includes("text/plain")) {
         const reader = res.body?.getReader();
         const decoder = new TextDecoder();
         let acc = "";
         const streamMsgId = "stream-" + userMsg.id;
-        
+
         // Add initial empty assistant message
-        const initialMsg: ChatMessage = { 
-          id: streamMsgId, 
-          role: "assistant", 
+        const initialMsg: ChatMessage = {
+          id: streamMsgId,
+          role: "assistant",
           content: "",
           model: selectedModel,
           timestamp: Date.now()
         };
         setThreads((prev) => prev.map((t) => t.id === activeThread.id ? { ...t, messages: [...t.messages, initialMsg] } : t));
-        
+
         if (reader) {
           try {
             let toolCalls: ToolCall[] = [];
@@ -681,7 +382,7 @@ export default function Home() {
             let streamStartTime = Date.now();
             let firstChunkTime: number | null = null;
             let lastUpdateTime = streamStartTime;
-            
+
             while (true) {
               const { value, done } = await reader.read();
               if (done) {
@@ -689,21 +390,21 @@ export default function Home() {
               }
               const chunk = decoder.decode(value, { stream: true });
               acc += chunk;
-              
+
               // Track first meaningful chunk time for TTFT
               if (!firstChunkTime && chunk.trim().length > 0) {
                 firstChunkTime = Date.now();
               }
-              
+
               // Count characters for token estimation
               totalChars += chunk.length;
-              
+
               // Parse tool calls and results from the accumulated content
               const parseToolData = (content: string) => {
                 let cleanContent = content;
                 const newToolCalls: ToolCall[] = [...toolCalls];
                 const newToolResults: ToolResult[] = [...toolResults];
-                
+
                 // Extract tool calls
                 const toolCallMatches = cleanContent.matchAll(/__TOOL_CALL__(.*?)__TOOL_CALL__/g);
                 for (const match of toolCallMatches) {
@@ -716,7 +417,7 @@ export default function Home() {
                   } catch (e) {
                   }
                 }
-                
+
                 // Extract tool results
                 const toolResultMatches = cleanContent.matchAll(/__TOOL_RESULT__(.*?)__TOOL_RESULT__/g);
                 for (const match of toolResultMatches) {
@@ -729,33 +430,33 @@ export default function Home() {
                   } catch (e) {
                   }
                 }
-                
+
                 toolCalls = newToolCalls;
                 toolResults = newToolResults;
                 return cleanContent.trim();
               };
-              
+
               const cleanContent = parseToolData(acc);
-              
+
               // Calculate real-time metrics
               const currentTime = Date.now();
               const elapsedTime = (currentTime - streamStartTime) / 1000;
-              
+
               // Better token estimation: ~3.5 chars per token for English text (based on clean content)
               const estimatedTokens = Math.ceil(cleanContent.length / 3.5);
               const tokensPerSecond = estimatedTokens > 0 && elapsedTime > 0.1 ? estimatedTokens / elapsedTime : 0;
-              
+
               // Calculate TTFT from request start
               const ttft = firstChunkTime && messageStartTime ? firstChunkTime - messageStartTime : undefined;
-              
+
               // Update streaming message with real-time metrics
               setThreads((prev) => prev.map((t) => {
                 if (t.id !== activeThread.id) return t;
                 return {
                   ...t,
-                  messages: t.messages.map((m) => 
-                    m.id === streamMsgId ? { 
-                      ...m, 
+                  messages: t.messages.map((m) =>
+                    m.id === streamMsgId ? {
+                      ...m,
                       content: cleanContent,
                       toolCalls,
                       toolResults,
@@ -780,9 +481,9 @@ export default function Home() {
           }
         } else {
           const fullText = await res.text();
-          const botMsg: ChatMessage = { 
-            id: crypto.randomUUID(), 
-            role: "assistant", 
+          const botMsg: ChatMessage = {
+            id: crypto.randomUUID(),
+            role: "assistant",
             content: fullText,
             model: selectedModel,
             timestamp: Date.now(),
@@ -792,9 +493,9 @@ export default function Home() {
         }
       } else {
         const data = await res.json();
-        const botMsg: ChatMessage = { 
-          id: crypto.randomUUID(), 
-          role: "assistant", 
+        const botMsg: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
           content: String(data.content ?? ""),
           model: selectedModel,
           timestamp: Date.now(),
@@ -804,9 +505,9 @@ export default function Home() {
       }
       setAttachments([]);
     } catch (e) {
-      const errorMsg: ChatMessage = { 
-        id: crypto.randomUUID(), 
-        role: "assistant", 
+      const errorMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "assistant",
         content: "Sorry, something went wrong.",
         model: selectedModel,
         timestamp: Date.now()
@@ -832,27 +533,27 @@ export default function Home() {
     // optionally send immediately
     // sendMessage(prompt);
   }
-  
+
   function handleCopyMessage() {
     // Copy functionality is handled within MessageActions component
   }
-  
+
   function handleBranchOff(message: ChatMessage) {
     // Create a new thread starting from this message for trying a different model
     const messageIndex = activeThread.messages.findIndex(m => m.id === message.id);
     const messagesUpToHere = activeThread.messages.slice(0, messageIndex);
-    
+
     const newThreadId = crypto.randomUUID();
     const newThread: Thread = {
       id: newThreadId,
       title: `Branch: ${message.content.slice(0, 30)}...`,
       messages: messagesUpToHere
     };
-    
+
     setThreads(prev => [newThread, ...prev]);
     setActiveThreadId(newThreadId);
   }
-  
+
   function handleRetryMessage(message: ChatMessage) {
     // Find the user message that generated this assistant response
     const messageIndex = activeThread.messages.findIndex(m => m.id === message.id);
@@ -877,73 +578,69 @@ export default function Home() {
         </button>
       </div>
       <div className="mx-auto flex gap-6 p-4 sm:p-6 lg:py-8 justify-center">
-        
-<div className="w-full space-y-6 px-2 pt-8 duration-300 animate-in fade-in-50 zoom-in-90 sm:px-8 pt-18">
+
+        <div className="w-full space-y-6 px-2 pt-8 duration-300 animate-in fade-in-50 zoom-in-90 sm:px-8">
           {showWelcome && (
-          <section className="mx-auto mt-8 w-full max-w-2xl text-left">
-            <h1 className="text-2xl font-semibold font-weight-600 tracking-tight sm:text-[30px] pb-6 pt-12 justify-left text-[#4e2a58]">How can I help you?</h1>
+            <section className="mx-auto mt-8 w-full max-w-2xl text-left">
+              <h1 className="text-2xl font-semibold font-weight-600 tracking-tight sm:text-[30px] pb-6 pt-12 justify-left text-[#4e2a58]">How can I help you?</h1>
 
-<div className="flex flex-row flex-wrap gap-2.5 text-sm max-sm:justify-evenly">
-  <button 
-    onClick={() => setSelectedCategory("create")}
-    className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${
-      selectedCategory === "create" 
-        ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90" 
-        : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
-    }`}
-  >
-    <IconPlusSparkles />
-    <div>Create</div>
-  </button>
-  <button 
-    onClick={() => setSelectedCategory("explore")}
-    className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${
-      selectedCategory === "explore" 
-        ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90" 
-        : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
-    }`}
-  >
-    <IconCompass />
-    <div>Explore</div>
-  </button>
-  <button 
-    onClick={() => setSelectedCategory("code")}
-    className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${
-      selectedCategory === "code" 
-        ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90" 
-        : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
-    }`}
-  >
-    <IconCode />
-    <div>Code</div>
-  </button>
-  <button 
-    onClick={() => setSelectedCategory("learn")}
-    className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${
-      selectedCategory === "learn" 
-        ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90" 
-        : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
-    }`}
-  >
-    <IconHat />
-    <div>Learn</div>
-  </button>
-</div>
-
-            {activeThread?.messages.length === 0 && (
-              <div className="mx-auto mt-4 w-full max-w-2xl divide-y divide-rose-100 overflow-hidden rounded-2xl text-left pt-1">
-                {categoryPrompts[selectedCategory].map((prompt: string) => (
-                  <button
-                    key={prompt}
-                    onClick={() => onSuggestionClick(prompt)}
-                    className="block w-full px-5 py-3 text-left text-rose-900/90 transition hover:bg-[#ed78c6]/20 text-font-10px"
-                  >
-                    {prompt}
-                  </button>
-                ))}
+              <div className="flex flex-row flex-wrap gap-2.5 text-sm max-sm:justify-evenly">
+                <button
+                  onClick={() => setSelectedCategory("create")}
+                  className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${selectedCategory === "create"
+                    ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90"
+                    : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
+                    }`}
+                >
+                  <IconPlusSparkles />
+                  <div>Create</div>
+                </button>
+                <button
+                  onClick={() => setSelectedCategory("explore")}
+                  className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${selectedCategory === "explore"
+                    ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90"
+                    : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
+                    }`}
+                >
+                  <IconCompass />
+                  <div>Explore</div>
+                </button>
+                <button
+                  onClick={() => setSelectedCategory("code")}
+                  className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${selectedCategory === "code"
+                    ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90"
+                    : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
+                    }`}
+                >
+                  <IconCode />
+                  <div>Code</div>
+                </button>
+                <button
+                  onClick={() => setSelectedCategory("learn")}
+                  className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${selectedCategory === "learn"
+                    ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90"
+                    : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
+                    }`}
+                >
+                  <IconHat />
+                  <div>Learn</div>
+                </button>
               </div>
-            )}
-          </section>
+
+              {activeThread?.messages.length === 0 && (
+                <div className="mx-auto mt-4 w-full max-w-2xl divide-y divide-rose-100 overflow-hidden rounded-2xl text-left pt-1">
+                  {categoryPrompts[selectedCategory].map((prompt: string) => (
+                    <button
+                      key={prompt}
+                      onClick={() => onSuggestionClick(prompt)}
+                      className="block w-full px-5 py-3 text-left text-rose-900/90 transition hover:bg-[#ed78c6]/20 text-font-10px"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
           )}
 
           {/* Messages */}
@@ -951,14 +648,14 @@ export default function Home() {
             <div className="space-y-4">
               {activeThread?.messages.map((m) => (
                 <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] ${m.role === "user" ? "flex justify-end" : ""}`}>
+                  <div className={`${m.role === "assistant" ? "w-full" : "max-w-[80%]"} ${m.role === "user" ? "flex justify-end" : ""}`}>
                     {/* Tool calls (only for assistant messages) */}
                     {m.role === "assistant" && m.toolCalls && m.toolCalls.length > 0 && (
                       <div className="mb-3 w-full">
                         {m.toolCalls.map((toolCall) => {
                           const toolResult = m.toolResults?.find(tr => tr.toolCallId === toolCall.toolCallId);
                           return (
-                            <ToolCallComponent 
+                            <ToolCallComponent
                               key={toolCall.toolCallId}
                               toolCall={toolCall}
                               toolResult={toolResult}
@@ -967,28 +664,27 @@ export default function Home() {
                         })}
                       </div>
                     )}
-                    
+
                     {/* Message content */}
                     {m.content && (
                       <div className="w-full">
                         <div
-                          className={`${
-                            m.role === "user"
-                              ? "bg-[#f5dbef] text-[#432A78]"
-                              : "bg-[#fdf7fd] text-rose-900"
-                          } whitespace-pre-wrap rounded-2xl px-4 py-3`}
+                          className={`${m.role === "user"
+                            ? "bg-[#f5dbef] text-[#432A78]"
+                            : "bg-[#fdf7fd] text-rose-900"
+                            } whitespace-pre-wrap rounded-2xl px-4 py-3`}
                         >
                           {m.role === "assistant" ? (
                             <div className="prose prose-sm max-w-none prose-headings:text-rose-900 prose-p:text-rose-900 prose-li:text-rose-900 prose-strong:text-rose-900 prose-code:text-rose-800 prose-code:bg-rose-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-rose-100 prose-pre:text-rose-800">
-                              <ReactMarkdown>
+                              <MarkdownRenderer>
                                 {m.content}
-                              </ReactMarkdown>
+                              </MarkdownRenderer>
                             </div>
                           ) : (
                             m.content
                           )}
                         </div>
-                        
+
                         {/* Message Actions - only for assistant messages */}
                         {m.role === "assistant" && (
                           <MessageActions
@@ -1073,13 +769,12 @@ export default function Home() {
                         </div>
                       )}
                     </div>
-                    <button 
+                    <button
                       onClick={() => setIsToolsModalOpen(true)}
-                      className={`inline-flex items-center gap-1 rounded-full border border-rose-200/60 px-2.5 py-1 font-medium transition ${
-                        selectedTools.length > 0 
-                          ? "bg-[#aa4673] text-white border-[#aa4673] hover:bg-[#aa4673]/90"
-                          : "bg-white/70 hover:bg-white"
-                      }`}
+                      className={`inline-flex items-center gap-1 rounded-full border border-rose-200/60 px-2.5 py-1 font-medium transition ${selectedTools.length > 0
+                        ? "bg-[#aa4673] text-white border-[#aa4673] hover:bg-[#aa4673]/90"
+                        : "bg-white/70 hover:bg-white"
+                        }`}
                     >
                       <span className={selectedTools.length > 0 ? "text-white" : "text-rose-500"}>
                         <IconTools />
@@ -1128,7 +823,7 @@ export default function Home() {
               </div>
             </div>
           </section>
-          </div>
+        </div>
       </div>
 
       {/* Tools Modal */}
@@ -1145,7 +840,7 @@ export default function Home() {
               </button>
             </div>
             <div className="p-6 overflow-y-auto max-h-[60vh]">
-              <ToolsModalContent 
+              <ToolsModalContent
                 selectedTools={selectedTools}
                 setSelectedTools={setSelectedTools}
               />
