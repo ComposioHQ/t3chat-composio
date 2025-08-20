@@ -7,62 +7,44 @@
   --card-foreground: 240 10% 30%;
   --popover: 0 0% 100%;
   --popover-foreground: 296 56% 21%;
-  --primary: 334.2 74.9% 56.9%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 314.7 61.6% 85.7%;
-  --secondary-foreground: 295.8 40.9% 34.5%;
-  --muted: 327.7 61.6% 78.7%;
-  --muted-foreground: 327 77% 38%;
-  --accent: 314.7 61.6% 85.7%;
-  --accent-foreground: 240 10% 30%;
-  --destructive: 335 94% 50%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 304.6 27.7% 90.8%;
-  --input: 317.4 44.2% 83.1%;
-  --ring: 333.3, 71.4%, 50.6%;
-  --chart-1: 12 76% 61%;
-  --chart-2: 173 58% 39%;
-  --chart-3: 197 37% 24%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
+  --primary: 240 5.9% 10%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
   --radius: 0.5rem;
-  --sidebar-background: 290.3 49.2% 87.6%;
-  --sidebar-foreground: 240 10% 30%;
-  --sidebar-primary: 240 10% 30%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 60 5% 97%;
-  --sidebar-accent-foreground: 240 10% 30%;
-  --sidebar-border: 20 6% 92%;
-  --sidebar-ring: 333.3, 71.4%, 50.6%;
-  --gradient-noise-top: 292 42.9% 93.1%;
-  --color-heading: 336.3 70.3% 19.8%;
-  --chat-border: 304.8 61% 83.9%;
-  --chat-background: 300 56% 98%;
-  --chat-accent: #f5ecf9;
-  --chat-input-gradient: 295 100% 90%;
-  --chat-input-background: hsla(270, 0%, 100%, var(--blur-fallback, 0.1));
-  --chat-overlay: hsla(309, 63%, 92%, var(--blur-fallback, 0.72));
-  --wordmark-color: #ca0277;
 
-  /* Extra tokens for gradient border utility */
-  --c: 320 100% 75%;
+  --sidebar-background: #0a0a0a;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #ededed;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #1f1f1f;
+  --sidebar-accent-foreground: #ededed;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #a1a1aa;
+
+  --chat-border: #27272a;
+  --chat-background: #0a0a0a;
+  --chat-accent: #1f1f1f;
+  --chat-input-background: rgba(0, 0, 0, 0.1);
+  --chat-overlay: rgba(10, 10, 10, 0.72);
+  --wordmark-color: #ededed;
+
+  --gradient-noise-top: #1f1f1f;
+  --color-heading: #ededed;
+  --c: 240 5.9% 10%;
   --min: hsl(var(--c)/0.2);
   --max: hsl(var(--c)/1);
   --gradientBorder-gradient: linear-gradient(180deg, var(--min), var(--max), var(--min)),
     linear-gradient(15deg, var(--min) 50%, var(--max));
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-ring: hsl(var(--ring));
-  --color-border: hsl(var(--border));
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -109,7 +91,7 @@ input, textarea {
   background-color: var(--chat-input-background);
   padding: 0.5rem;
   padding-bottom: 0.5rem;
-  border: 3px solid #ee81ca;
+  border: 3px solid #333;
   backdrop-filter: blur(16px);
 }
 

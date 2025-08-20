@@ -13,6 +13,24 @@ function IconHamburger() {
   );
 }
 
+function IconSidebar() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <line x1="9" y1="3" x2="9" y2="21" />
+    </svg>
+  );
+}
+
+function IconTrash() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  );
+}
+
 function IconGlobe() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -135,8 +153,8 @@ function IconRefresh() {
 
 function ChipButton({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <button className="inline-flex items-center gap-2 rounded-full border border-rose-200/60 bg-white/70 px-4 py-2 text-sm font-medium text-rose-900 shadow-sm backdrop-blur transition hover:bg-white">
-      <span className="text-rose-500">{icon}</span>
+    <button className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-2 text-sm font-medium text-card-foreground shadow-sm backdrop-blur transition hover:bg-card">
+      <span className="text-primary">{icon}</span>
       {label}
     </button>
   );
@@ -244,12 +262,11 @@ function MessageActions({
   };
   
   return (
-    <div className="mt-3 flex items-center justify-between text-xs border-t border-rose-200/30 pt-2">
+    <div className="mt-3 flex items-center justify-between text-xs border-t border-border/30 pt-2">
       <div className="flex items-center gap-1">
         <button
           onClick={handleCopy}
-          className="p-1.5 rounded-md hover:bg-rose-100/40 transition-colors hover:text-[#432A78]"
-          style={{ color: '#432A78' }}
+          className="p-1.5 rounded-md hover:bg-accent/40 transition-colors"
           title={copied ? 'Copied!' : 'Copy message'}
         >
           <IconCopy />
@@ -257,8 +274,7 @@ function MessageActions({
         
         <button
           onClick={onBranchOff}
-          className="p-1.5 rounded-md hover:bg-rose-100/40 transition-colors hover:text-[#432A78]"
-          style={{ color: '#432A78' }}
+          className="p-1.5 rounded-md hover:bg-accent/40 transition-colors"
           title="Branch off to new conversation with different model"
         >
           <IconBranch />
@@ -266,15 +282,14 @@ function MessageActions({
         
         <button
           onClick={onRetry}
-          className="p-1.5 rounded-md hover:bg-rose-100/40 transition-colors hover:text-[#432A78]"
-          style={{ color: '#432A78' }}
+          className="p-1.5 rounded-md hover:bg-accent/40 transition-colors"
           title="Retry message"
         >
           <IconRefresh />
         </button>
       </div>
       
-      <div className="flex items-center gap-3 font-medium" style={{ color: '#432A78' }}>
+      <div className="flex items-center gap-3 font-medium">
         {message.model && (
           <span className="text-xs">{message.model}</span>
         )}
@@ -322,10 +337,10 @@ function ToolCallComponent({ toolCall, toolResult }: { toolCall: ToolCall; toolR
   }, [toolCall.toolName]);
   
   return (
-    <div className="my-3 w-full rounded-2xl border border-rose-200/70 bg-[#f5dbef] p-4 shadow-sm">
+    <div className="my-3 w-full rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
       <div className="flex items-center justify-between gap-4 min-h-[72px]">
         <div className="flex items-center gap-3">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-white/80 text-[#ca0277] shadow-sm overflow-hidden">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-background/80 text-primary shadow-sm overflow-hidden">
             {logoUrl ? (
               <img src={logoUrl} alt="toolkit logo" className="h-5 w-5 object-contain" />
             ) : (
@@ -333,15 +348,15 @@ function ToolCallComponent({ toolCall, toolResult }: { toolCall: ToolCall; toolR
             )}
           </div>
           <div>
-            <div className="font-semibold text-[#ca0277]">{getToolDisplayName(toolCall.toolName)}</div>
-            <div className="text-xs text-[#6F4DA3]">
+            <div className="font-semibold text-primary">{getToolDisplayName(toolCall.toolName)}</div>
+            <div className="text-xs text-muted-foreground">
               {toolResult ? '✅ Completed' : '⏳ Running...'}
             </div>
           </div>
         </div>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="text-[#ca0277] hover:text-[#ca0277]/80 text-sm font-medium underline-offset-2 hover:underline"
+          className="text-primary hover:text-primary/80 text-sm font-medium underline-offset-2 hover:underline"
         >
           {isExpanded ? 'Hide details' : 'Show details'}
         </button>
@@ -350,16 +365,16 @@ function ToolCallComponent({ toolCall, toolResult }: { toolCall: ToolCall; toolR
       {isExpanded && (
         <div className="mt-4 space-y-3">
           <div>
-            <div className="mb-1 text-xs font-medium text-[#6F4DA3]">Input:</div>
-            <div className="rounded-lg border border-white/70 bg-white/60 p-2 font-mono text-xs text-[#432A78]">
+            <div className="mb-1 text-xs font-medium text-muted-foreground">Input:</div>
+            <div className="rounded-lg border border-border/70 bg-background/60 p-2 font-mono text-xs text-card-foreground">
               {JSON.stringify(toolCall.args, null, 2)}
             </div>
           </div>
           
           {toolResult && (
             <div>
-              <div className="mb-1 text-xs font-medium text-[#6F4DA3]">Output:</div>
-              <div className="max-h-40 overflow-y-auto rounded-lg border border-white/70 bg-white/60 p-2 font-mono text-xs text-[#432A78]">
+              <div className="mb-1 text-xs font-medium text-muted-foreground">Output:</div>
+              <div className="max-h-40 overflow-y-auto rounded-lg border border-border/70 bg-background/60 p-2 font-mono text-xs text-card-foreground">
                 {JSON.stringify(toolResult.result, null, 2)}
               </div>
             </div>
@@ -426,7 +441,7 @@ function ToolsModalContent({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#aa4673]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -466,7 +481,7 @@ function ToolsModalContent({
                       type="checkbox"
                       checked={selectedTools.includes(tool.slug || tool.name)}
                       onChange={() => toggleTool(tool.slug || tool.name)}
-                      className="mt-1 text-[#aa4673] focus:ring-[#aa4673]"
+                      className="mt-1 text-primary focus:ring-primary"
                     />
                     <div className="flex-1">
                       <div className="font-medium text-sm text-gray-900">{tool.displayName || tool.name}</div>
@@ -491,6 +506,7 @@ export default function Home() {
 
   const [threads, setThreads] = React.useState<Thread[]>([{ id: crypto.randomUUID(), title: "Greeting Title", messages: [] }]);
   const [activeThreadId, setActiveThreadId] = React.useState<string>("");
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [input, setInput] = React.useState("");
   const [selectedModel, setSelectedModel] = React.useState("gpt-5-mini");
   const [isModelMenuOpen, setIsModelMenuOpen] = React.useState(false);
@@ -827,6 +843,13 @@ export default function Home() {
     setInput("");
   }
 
+  function deleteThread(threadId: string) {
+    setThreads((prev) => prev.filter((t) => t.id !== threadId));
+    if (activeThreadId === threadId) {
+      setActiveThreadId(threads[0]?.id ?? "");
+    }
+  }
+
   function onSuggestionClick(prompt: string) {
     setInput(prompt);
     // optionally send immediately
@@ -865,30 +888,70 @@ export default function Home() {
   }
 
   return (
-    <div className="font-sans min-h-screen w-full bg-[#fdf7fd]">
-      {/* Top-left toolbar with only + for New Chat */}
-      <div className="fixed left-3 top-3 z-50">
-        <button
-          aria-label="New chat"
-          onClick={startNewChat}
-          className="grid h-9 w-9 place-items-center rounded-lg bg-[#f5dbef] text-[#ca0277] shadow-sm hover:brightness-95"
-        >
-          <IconPlus />
-        </button>
+    <div className="font-sans min-h-screen w-full bg-background flex">
+      <div
+        className={`bg-sidebar-background text-sidebar-foreground border-r border-sidebar-border transition-all duration-300 ${
+          isSidebarOpen ? "w-64" : "w-0"
+        } overflow-hidden`}
+      >
+        <div className="p-4">
+          <h2 className="text-lg font-semibold">Chat History</h2>
+          <div className="mt-4">
+            {threads.map((thread) => (
+              <div
+                key={thread.id}
+                className={`flex items-center justify-between p-2 rounded-lg cursor-pointer ${
+                  activeThreadId === thread.id
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "hover:bg-sidebar-accent/50"
+                }`}
+                onClick={() => setActiveThreadId(thread.id)}
+              >
+                <span className="truncate">{thread.title}</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteThread(thread.id);
+                  }}
+                  className="text-sidebar-muted-foreground hover:text-sidebar-foreground"
+                >
+                  <IconTrash />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      <div className="mx-auto flex gap-6 p-4 sm:p-6 lg:py-8 justify-center">
-        
-<div className="w-full space-y-6 px-2 pt-8 duration-300 animate-in fade-in-50 zoom-in-90 sm:px-8 pt-18">
-          {showWelcome && (
-          <section className="mx-auto mt-8 w-full max-w-2xl text-left">
-            <h1 className="text-2xl font-semibold font-weight-600 tracking-tight sm:text-[30px] pb-6 pt-12 justify-left text-[#4e2a58]">How can I help you?</h1>
+      <div className="flex-1 flex flex-col">
+        {/* Top-left toolbar with only + for New Chat */}
+        <div className="fixed left-3 top-3 z-50 flex gap-2">
+          <button
+            aria-label="Toggle sidebar"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="grid h-9 w-9 place-items-center rounded-lg bg-card text-primary shadow-sm hover:brightness-95"
+          >
+            <IconSidebar />
+          </button>
+          <button
+            aria-label="New chat"
+            onClick={startNewChat}
+            className="grid h-9 w-9 place-items-center rounded-lg bg-card text-primary shadow-sm hover:brightness-95"
+          >
+            <IconPlus />
+          </button>
+        </div>
+        <div className="mx-auto flex gap-6 p-4 sm:p-6 lg:py-8 justify-center flex-1">
+          <div className="w-full space-y-6 px-2 pt-8 duration-300 animate-in fade-in-50 zoom-in-90 sm:px-8 pt-18">
+            {showWelcome && (
+              <section className="mx-auto mt-8 w-full max-w-2xl text-left">
+                <h1 className="text-2xl font-semibold font-weight-600 tracking-tight sm:text-[30px] pb-6 pt-12 justify-left text-foreground">How can I help you?</h1>
 
 <div className="flex flex-row flex-wrap gap-2.5 text-sm max-sm:justify-evenly">
   <button 
     onClick={() => setSelectedCategory("create")}
     className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${
       selectedCategory === "create" 
-        ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90" 
+        ? "bg-primary text-primary-foreground shadow hover:bg-primary/90"
         : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
     }`}
   >
@@ -899,7 +962,7 @@ export default function Home() {
     onClick={() => setSelectedCategory("explore")}
     className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${
       selectedCategory === "explore" 
-        ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90" 
+        ? "bg-primary text-primary-foreground shadow hover:bg-primary/90"
         : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
     }`}
   >
@@ -910,7 +973,7 @@ export default function Home() {
     onClick={() => setSelectedCategory("code")}
     className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${
       selectedCategory === "code" 
-        ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90" 
+        ? "bg-primary text-primary-foreground shadow hover:bg-primary/90"
         : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
     }`}
   >
@@ -921,7 +984,7 @@ export default function Home() {
     onClick={() => setSelectedCategory("learn")}
     className={`justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 flex items-center gap-1 rounded-xl px-5 py-2 font-semibold outline-1 outline-secondary/70 backdrop-blur-xl max-sm:size-16 max-sm:flex-col sm:gap-2 sm:rounded-full ${
       selectedCategory === "learn" 
-        ? "bg-[#aa4673] text-primary-foreground shadow hover:bg-[#aa4673]/90" 
+        ? "bg-primary text-primary-foreground shadow hover:bg-primary/90"
         : "bg-secondary/30 text-secondary-foreground/90 outline hover:bg-secondary"
     }`}
   >
@@ -931,12 +994,12 @@ export default function Home() {
 </div>
 
             {activeThread?.messages.length === 0 && (
-              <div className="mx-auto mt-4 w-full max-w-2xl divide-y divide-rose-100 overflow-hidden rounded-2xl text-left pt-1">
+              <div className="mx-auto mt-4 w-full max-w-2xl divide-y divide-border overflow-hidden rounded-2xl text-left pt-1">
                 {categoryPrompts[selectedCategory].map((prompt: string) => (
                   <button
                     key={prompt}
                     onClick={() => onSuggestionClick(prompt)}
-                    className="block w-full px-5 py-3 text-left text-rose-900/90 transition hover:bg-[#ed78c6]/20 text-font-10px"
+                    className="block w-full px-5 py-3 text-left text-foreground/90 transition hover:bg-accent/20 text-font-10px"
                   >
                     {prompt}
                   </button>
@@ -974,12 +1037,12 @@ export default function Home() {
                         <div
                           className={`${
                             m.role === "user"
-                              ? "bg-[#f5dbef] text-[#432A78]"
-                              : "bg-[#fdf7fd] text-rose-900"
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-card text-card-foreground"
                           } whitespace-pre-wrap rounded-2xl px-4 py-3`}
                         >
                           {m.role === "assistant" ? (
-                            <div className="prose prose-sm max-w-none prose-headings:text-rose-900 prose-p:text-rose-900 prose-li:text-rose-900 prose-strong:text-rose-900 prose-code:text-rose-800 prose-code:bg-rose-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-rose-100 prose-pre:text-rose-800">
+                            <div className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-code:text-foreground prose-code:bg-background prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-background prose-pre:text-foreground">
                               <ReactMarkdown>
                                 {m.content}
                               </ReactMarkdown>
@@ -1032,38 +1095,38 @@ export default function Home() {
                       }
                     }}
                     placeholder="Type your message here..."
-                    className="h-[68px] w-full resize-none rounded-l-2xl border border-transparent bg-[#FBF7FB] px-4 py-3 text-[#432A78] placeholder-[#6F4DA3] outline-none"
+                    className="h-[68px] w-full resize-none rounded-l-2xl border border-transparent bg-card px-4 py-3 text-foreground placeholder-muted-foreground outline-none"
                   />
-                  <div className="mt-2 flex items-center gap-2 text-xs text-rose-700">
+                  <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                     <div className="relative inline-block" ref={modelMenuRef}>
                       <button
                         aria-haspopup="listbox"
                         aria-expanded={isModelMenuOpen}
                         onClick={() => setIsModelMenuOpen((v) => !v)}
-                        className="inline-flex items-center gap-1 rounded-full border border-rose-200/60 bg-white/70 px-2.5 py-1 font-medium hover:bg-[#ed78c6]/20"
+                        className="inline-flex items-center gap-1 rounded-full border border-border bg-card/70 px-2.5 py-1 font-medium hover:bg-accent"
                       >
                         {selectedModel}
                         <IconChevronDown />
                       </button>
                       {isModelMenuOpen && (
-                        <div className="absolute left-0 bottom-full z-50 mb-2 w-72 rounded-xl border border-rose-200/60 bg-white p-2 text-rose-900 shadow-lg">
+                        <div className="absolute left-0 bottom-full z-50 mb-2 w-72 rounded-xl border border-border bg-popover p-2 text-popover-foreground shadow-lg">
                           <input
                             autoFocus
                             value={modelQuery}
                             onChange={(e) => setModelQuery(e.target.value)}
                             placeholder="Search models..."
-                            className="mb-2 w-full rounded-lg border border-rose-200/60 bg-white px-2.5 py-1 text-xs outline-none"
+                            className="mb-2 w-full rounded-lg border border-border bg-background px-2.5 py-1 text-xs outline-none"
                           />
                           <ul role="listbox" className="max-h-56 overflow-auto">
                             {filteredModels.length === 0 && (
-                              <li className="px-2 py-1 text-xs text-rose-500">No models found</li>
+                              <li className="px-2 py-1 text-xs text-destructive">No models found</li>
                             )}
                             {filteredModels.map((m) => (
                               <li key={m}>
                                 <button
                                   role="option"
                                   onClick={() => { setSelectedModel(m); setIsModelMenuOpen(false); }}
-                                  className={`block w-full rounded-md px-2 py-1 text-left text-sm hover:bg-[#ed78c6]/20 ${selectedModel === m ? 'bg-[#ed78c6]/20' : ''}`}
+                                  className={`block w-full rounded-md px-2 py-1 text-left text-sm hover:bg-accent ${selectedModel === m ? 'bg-accent' : ''}`}
                                 >
                                   {m}
                                 </button>
@@ -1075,13 +1138,13 @@ export default function Home() {
                     </div>
                     <button 
                       onClick={() => setIsToolsModalOpen(true)}
-                      className={`inline-flex items-center gap-1 rounded-full border border-rose-200/60 px-2.5 py-1 font-medium transition ${
+                      className={`inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 font-medium transition ${
                         selectedTools.length > 0 
-                          ? "bg-[#aa4673] text-white border-[#aa4673] hover:bg-[#aa4673]/90"
-                          : "bg-white/70 hover:bg-white"
+                          ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                          : "bg-card/70 hover:bg-card"
                       }`}
                     >
-                      <span className={selectedTools.length > 0 ? "text-white" : "text-rose-500"}>
+                      <span className={selectedTools.length > 0 ? "text-white" : "text-primary"}>
                         <IconTools />
                       </span>
                       Tools {selectedTools.length > 0 && `(${selectedTools.length})`}
@@ -1099,20 +1162,20 @@ export default function Home() {
                     />
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1 rounded-full border border-rose-200/60 bg-white/70 px-2.5 py-1 font-medium hover:bg-white"
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-card/70 px-2.5 py-1 font-medium hover:bg-card"
                     >
-                      <span className="text-rose-500"><IconPaperclip /></span>
+                      <span className="text-primary"><IconPaperclip /></span>
                       Attach
                     </button>
                   </div>
                   {attachments.length > 0 && (
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-rose-900/90">
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-foreground/90">
                       {attachments.map((file, idx) => (
-                        <span key={`${file.name}-${idx}`} className="inline-flex items-center gap-1 rounded-full border border-rose-200/60 bg-white/70 px-2.5 py-1">
+                        <span key={`${file.name}-${idx}`} className="inline-flex items-center gap-1 rounded-full border border-border bg-card/70 px-2.5 py-1">
                           {file.name}
                           <button
                             aria-label="Remove attachment"
-                            className="ml-1 text-rose-500 hover:text-rose-700"
+                            className="ml-1 text-primary hover:text-destructive"
                             onClick={() => setAttachments((prev) => prev.filter((_, i) => i !== idx))}
                           >
                             ×
@@ -1122,24 +1185,24 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-                <button aria-label="Send" onClick={() => sendMessage(input)} className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-b from-rose-800 to-pink-800 text-white shadow-md transition hover:from-rose-600 hover:to-pink-600">
+                <button aria-label="Send" onClick={() => sendMessage(input)} className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-md transition hover:bg-primary/90">
                   <IconArrowUp />
                 </button>
               </div>
             </div>
           </section>
           </div>
+        </div>
       </div>
-
       {/* Tools Modal */}
       {isToolsModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">Select Tools</h2>
+          <div className="bg-popover rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h2 className="text-xl font-semibold text-popover-foreground">Select Tools</h2>
               <button
                 onClick={() => setIsToolsModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 text-2xl"
+                className="text-muted-foreground hover:text-foreground text-2xl"
               >
                 ×
               </button>
@@ -1150,16 +1213,16 @@ export default function Home() {
                 setSelectedTools={setSelectedTools}
               />
             </div>
-            <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+            <div className="flex justify-end gap-3 p-6 border-t border-border">
               <button
                 onClick={() => setIsToolsModalOpen(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                className="px-4 py-2 text-muted-foreground hover:text-foreground transition"
               >
                 Cancel
               </button>
               <button
                 onClick={() => setIsToolsModalOpen(false)}
-                className="px-6 py-2 bg-[#aa4673] text-white rounded-lg hover:bg-[#aa4673]/90 transition"
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition"
               >
                 Done ({selectedTools.length} selected)
               </button>
