@@ -1,4 +1,4 @@
-export type Role = 'user' | 'assistant';
+export type Role = "user" | "assistant";
 
 export interface Tool {
   name: string;
@@ -20,14 +20,14 @@ export interface Toolkit {
 }
 
 export interface ToolCall {
-  type: 'tool-call';
+  type: "tool-call";
   toolName: string;
   toolCallId: string;
   args: any;
 }
 
 export interface ToolResult {
-  type: 'tool-result';
+  type: "tool-result";
   toolCallId: string;
   toolName: string;
   result: any;
@@ -46,4 +46,8 @@ export interface ChatMessage {
   timestamp?: number;
 }
 
-export interface Thread { id: string; title: string; messages: ChatMessage[] };
+export interface Thread {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+}
