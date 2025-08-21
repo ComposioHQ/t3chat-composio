@@ -41,44 +41,44 @@ SyntaxHighlighter.registerLanguage('xml', xml);
 const components: Components = {
     // Typography spacing
     p({ children, className }: any) {
-        return <p className={`my-2 leading-relaxed ${className ?? ''}`}>{children}</p>;
+        return <p className={`leading-normal mb-3 ${className ?? ''}`}>{children}</p>;
     },
     h1({ children, className }: any) {
-        return <h1 className={`text-2xl font-semibold mt-6 mb-3 ${className ?? ''}`}>{children}</h1>;
+        return <h1 className={`leading-normal text-2xl font-semibold mt-6 mb-3 ${className ?? ''}`}>{children}</h1>;
     },
     h2({ children, className }: any) {
-        return <h2 className={`text-xl font-semibold mt-5 mb-2 ${className ?? ''}`}>{children}</h2>;
+        return <h2 className={`leading-normal text-xl font-semibold mt-5 mb-2 ${className ?? ''}`}>{children}</h2>;
     },
     h3({ children, className }: any) {
-        return <h3 className={`text-lg font-semibold mt-4 mb-2 ${className ?? ''}`}>{children}</h3>;
+        return <h3 className={`leading-normal text-lg font-semibold mt-4 mb-2 ${className ?? ''}`}>{children}</h3>;
     },
     h4({ children, className }: any) {
-        return <h4 className={`text-base font-semibold mt-4 mb-1.5 ${className ?? ''}`}>{children}</h4>;
+        return <h4 className={`leading-normal text-base font-semibold mt-4 mb-1.5 ${className ?? ''}`}>{children}</h4>;
     },
     h5({ children, className }: any) {
-        return <h5 className={`text-base font-medium mt-3 mb-1 ${className ?? ''}`}>{children}</h5>;
+        return <h5 className={`leading-normal text-base font-medium mt-3 mb-1 ${className ?? ''}`}>{children}</h5>;
     },
     h6({ children, className }: any) {
-        return <h6 className={`text-sm font-medium mt-3 mb-1 ${className ?? ''}`}>{children}</h6>;
+        return <h6 className={`leading-normal text-sm font-medium mt-3 mb-1 ${className ?? ''}`}>{children}</h6>;
     },
     // Lists
     ul({ children, className }: any) {
         return (
-            <ul className={`list-disc pl-6 my-2 space-y-0.5 ${className ?? ''}`}>
+            <ul className={`leading-normal list-disc pl-6 mb-3 ${className ?? ''}`}>
                 {children}
             </ul>
         );
     },
     ol({ children, start, className }: any) {
         return (
-            <ol start={start as any} className={`list-decimal pl-6 my-2 space-y-0.5 ${className ?? ''}`}>
+            <ol start={start as any} className={`leading-normal list-decimal pl-6 mb-3 ${className ?? ''}`}>
                 {children}
             </ol>
         );
     },
     li({ children, className }: any) {
         return (
-            <li className={`marker:text-[#aa4673] [&>p]:m-0 [&>p]:inline ${className ?? ''}`}>
+            <li className={`leading-normal marker:text-[#aa4673] [&>p]:m-0 [&>p]:inline ${className ?? ''}`}>
                 {children}
             </li>
         );
