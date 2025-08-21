@@ -193,7 +193,6 @@ export default function Home() {
   const [threads, setThreads] = React.useState<Thread[]>([{ id: crypto.randomUUID(), title: "Greeting Title", messages: [] }]);
   const [activeThreadId, setActiveThreadId] = React.useState<string>("");
   const [input, setInput] = React.useState("");
-  const [selectedModel, setSelectedModel] = React.useState("gpt-5-mini");
   const [isModelMenuOpen, setIsModelMenuOpen] = React.useState(false);
   const [modelQuery, setModelQuery] = React.useState("");
   const modelMenuRef = React.useRef<HTMLDivElement | null>(null);
@@ -225,9 +224,9 @@ export default function Home() {
       // "Claude 3.5 Sonnet",
       // "Claude 3.5 Haiku",
       // Google models (2025)
+      "Gemini 2.0 Flash",
       "Gemini 2.5 Pro",
       "Gemini 2.5 Flash",
-      "Gemini 2.0 Flash",
       "Gemini 2.0 Flash Thinking",
       // Groq models (2025)
       // "DeepSeek R1 Llama 70B",
@@ -235,6 +234,9 @@ export default function Home() {
     ],
     []
   );
+
+  const [selectedModel, setSelectedModel] = React.useState(modelOptions[0]);
+
 
   const filteredModels = React.useMemo(
     () => modelOptions.filter((m) => m.toLowerCase().includes(modelQuery.toLowerCase())),
@@ -294,10 +296,6 @@ export default function Home() {
     }
   }, [threads, activeThreadId]);
 
-  React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [threads, isLoading]);
-
   // Measure composer height so content never sits under it
   React.useEffect(() => {
     function measure() {
@@ -315,29 +313,44 @@ export default function Home() {
     if (!text.trim()) return;
 
     let targetMessages: ChatMessage[];
+    let messagesForAPI: ChatMessage[];
+
     if (retryFromMessage) {
       // Find the index of the message we're retrying from
       const msgIndex = activeThread.messages.findIndex(m => m.id === retryFromMessage.id);
       // Keep all messages up to (but not including) the retry message
       targetMessages = activeThread.messages.slice(0, msgIndex);
+      // For API, use the target messages as-is (they already include the user message)
+      messagesForAPI = targetMessages;
+
+      // Update threads state to remove the failed assistant message
+      const optimistic = threads.map((t) => {
+        if (t.id !== activeThread.id) return t;
+        return { ...t, messages: targetMessages };
+      });
+      setThreads(optimistic);
     } else {
+      // Normal message flow - add new user message
       targetMessages = activeThread.messages;
+
+      const userMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "user",
+        content: text.trim(),
+        timestamp: Date.now()
+      };
+
+      messagesForAPI = [...targetMessages, userMsg];
+
+      const optimistic = threads.map((t) => {
+        if (t.id !== activeThread.id) return t;
+        const isFirst = targetMessages.length === 0;
+        const maybeTitle = isFirst ? text.trim().slice(0, 40) || t.title : t.title;
+        return { ...t, title: maybeTitle, messages: messagesForAPI };
+      });
+      setThreads(optimistic);
     }
 
-    const userMsg: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: text.trim(),
-      timestamp: Date.now()
-    };
-
-    const optimistic = threads.map((t) => {
-      if (t.id !== activeThread.id) return t;
-      const isFirst = targetMessages.length === 0;
-      const maybeTitle = isFirst ? text.trim().slice(0, 40) || t.title : t.title;
-      return { ...t, title: maybeTitle, messages: [...targetMessages, userMsg] };
-    });
-    setThreads(optimistic);
     if (!retryFromMessage) setInput("");
     setIsLoading(true);
     setMessageStartTime(Date.now());
@@ -350,7 +363,7 @@ export default function Home() {
         body: JSON.stringify({
           model: selectedModel,
           attachments: attachments.map((f) => ({ name: f.name, size: f.size, type: f.type })),
-          messages: [...targetMessages, userMsg],
+          messages: messagesForAPI,
           tools: selectedTools,
         }),
       });
@@ -362,7 +375,11 @@ export default function Home() {
         const reader = res.body?.getReader();
         const decoder = new TextDecoder();
         let acc = "";
-        const streamMsgId = "stream-" + userMsg.id;
+        // Generate a unique stream ID based on current timestamp for retries or last user message for new messages
+        const lastUserMsg = messagesForAPI.filter(m => m.role === "user").pop();
+        const streamMsgId = retryFromMessage
+          ? "stream-retry-" + Date.now()
+          : "stream-" + (lastUserMsg?.id || Date.now());
 
         // Add initial empty assistant message
         const initialMsg: ChatMessage = {
@@ -686,7 +703,7 @@ export default function Home() {
                         </div>
 
                         {/* Message Actions - only for assistant messages */}
-                        {m.role === "assistant" && (
+                        {m.role === "assistant" && !isLoading && (
                           <MessageActions
                             message={m}
                             onCopy={handleCopyMessage}
@@ -708,7 +725,6 @@ export default function Home() {
                   </div>
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </div>
           </div>
 

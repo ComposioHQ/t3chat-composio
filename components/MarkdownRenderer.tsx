@@ -129,7 +129,7 @@ const components: Components = {
         // Block code with language => SyntaxHighlighter
         if (language) {
             return (
-                <div className="relative group border border-rose-200/70 rounded-lg bg-white/80 p-4 shadow-sm">
+                <div className="relative group border border-rose-200/70 rounded-lg bg-white/80 p-2 shadow-sm">
                     <button
                         onClick={handleCopy}
                         className="absolute right-2 top-2 z-10 rounded-md border border-rose-300/70 bg-white/80 px-2 py-1 text-xs font-medium text-rose-700 shadow-sm hover:bg-white"
@@ -141,7 +141,7 @@ const components: Components = {
                         language={language}
                         style={githubStyle}
                         PreTag="pre"
-                        customStyle={{ background: 'transparent', margin: 0, paddingTop: '2.25rem', fontSize: '0.9em' }}
+                        customStyle={{ background: 'transparent', margin: 0, fontSize: '0.9em' }}
                         codeTagProps={{ style: { background: 'transparent' } }}
                         wrapLongLines
                         {...rest}
@@ -162,7 +162,7 @@ const components: Components = {
                 >
                     {copied ? 'Copied' : 'Copy'}
                 </button>
-                <pre className="bg-rose-100 text-rose-800 px-4 pt-9 pb-4 rounded-lg overflow-x-auto">
+                <pre className="bg-rose-100 text-rose-800 p-2 rounded-lg overflow-x-auto">
                     <code className="font-mono text-sm whitespace-pre">{rawCode}</code>
                 </pre>
             </div>
