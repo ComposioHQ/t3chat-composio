@@ -19,10 +19,14 @@
     "@tailwindcss/typography": "^0.5.16",
     "ai": "^5.0.12",
     "eventsource-parser": "^1.1.2",
+    "mermaid": "^11.10.0",
     "next": "15.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-markdown": "^10.1.0"
+    "react-markdown": "^10.1.0",
+    "react-syntax-highlighter": "^15.5.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

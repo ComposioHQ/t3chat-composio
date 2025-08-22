@@ -46,9 +46,10 @@
 
   /* Extra tokens for gradient border utility */
   --c: 320 100% 75%;
-  --min: hsl(var(--c)/0.2);
-  --max: hsl(var(--c)/1);
-  --gradientBorder-gradient: linear-gradient(180deg, var(--min), var(--max), var(--min)),
+  --min: hsl(var(--c) / 0.2);
+  --max: hsl(var(--c) / 1);
+  --gradientBorder-gradient:
+    linear-gradient(180deg, var(--min), var(--max), var(--min)),
     linear-gradient(15deg, var(--min) 50%, var(--max));
 }
 
@@ -89,7 +90,8 @@ body {
 }
 
 /* Pink caret in inputs */
-input, textarea {
+input,
+textarea {
   caret-color: hsl(var(--primary));
 }
 
@@ -123,43 +125,63 @@ input, textarea {
   border-bottom-right-radius: 20px;
   padding: 1px;
   background: var(--gradientBorder-gradient);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
 }
 
 .input-bar {
-    letter-spacing: 0;
-    box-sizing: border-box;
-    border: 0 solid #e5e7eb;
-    pointer-events: auto;
-    overflow: visible;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: .5rem;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    background-color: var(--chat-input-background);
-    padding-left: .75rem;
-    padding-right: .75rem;
-    padding-top: .75rem;
-    color: hsl(var(--secondary-foreground));
-    outline-style: solid;
-    outline-width: 8px;
-    outline-color: hsl(var(--chat-input-gradient)/.5);
-    padding-bottom: calc(env(safe-area-inset-bottom) + .75rem);
-    max-width: 48rem;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 80px 50px 0px, rgba(0, 0, 0, 0.07) 0px 50px 30px 0px, rgba(0, 0, 0, 0.06) 0px 30px 15px 0px, rgba(0, 0, 0, 0.04) 0px 15px 8px, rgba(0, 0, 0, 0.04) 0px 6px 4px, rgba(0, 0, 0, 0.02) 0px 2px 2px;
+  letter-spacing: 0;
+  box-sizing: border-box;
+  border: 0 solid #e5e7eb;
+  pointer-events: auto;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  background-color: var(--chat-input-background);
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.75rem;
+  color: hsl(var(--secondary-foreground));
+  outline-style: solid;
+  outline-width: 8px;
+  outline-color: hsl(var(--chat-input-gradient) / 0.5);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);
+  max-width: 48rem;
+  box-shadow:
+    rgba(0, 0, 0, 0.1) 0px 80px 50px 0px,
+    rgba(0, 0, 0, 0.07) 0px 50px 30px 0px,
+    rgba(0, 0, 0, 0.06) 0px 30px 15px 0px,
+    rgba(0, 0, 0, 0.04) 0px 15px 8px,
+    rgba(0, 0, 0, 0.04) 0px 6px 4px,
+    rgba(0, 0, 0, 0.02) 0px 2px 2px;
 }
 
 /* Typing indicator dots */
 @keyframes typingDots {
-  0%, 20% { opacity: 0.25; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(-2px); }
-  100% { opacity: 0.25; transform: translateY(0); }
+  0%,
+  20% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
 }
 
 .typing-dot {
@@ -169,5 +191,156 @@ input, textarea {
   background: var(--wordmark-color);
   animation: typingDots 1s infinite ease-in-out;
 }
-.typing-dot:nth-child(2) { animation-delay: 0.15s; }
-.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+.typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Markdown content styling */
+.prose {
+  color: inherit;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: rgb(17 24 39);
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose h1 {
+  font-size: 1.5em;
+}
+.prose h2 {
+  font-size: 1.25em;
+}
+.prose h3 {
+  font-size: 1.125em;
+}
+.prose h4 {
+  font-size: 1em;
+}
+.prose h5 {
+  font-size: 0.875em;
+}
+.prose h6 {
+  font-size: 0.75em;
+}
+
+.prose p {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+  line-height: 1.6;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.5em;
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose code {
+  @apply bg-rose-100 text-rose-800;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.75em;
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo,
+    monospace;
+}
+
+.prose pre {
+  background-color: rgb(243 244 246);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.875rem;
+}
+
+.prose blockquote {
+  border-left: 4px solid rgb(209 213 219);
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-style: italic;
+  color: rgb(107 114 128);
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid rgb(209 213 219);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.prose th {
+  background-color: rgb(249 250 251);
+  font-weight: 600;
+}
+
+.prose a {
+  color: rgb(59 130 246);
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: rgb(37 99 235);
+}
+
+/* GitHub-style checkboxes */
+.prose input[type="checkbox"] {
+  margin-right: 0.5rem;
+  margin-top: 0.125rem;
+  vertical-align: top;
+}
+
+.prose .task-list-item {
+  list-style: none;
+  margin-left: -1.5em;
+  padding-left: 1.5em;
+}
+
+.prose .task-list-item input[type="checkbox"] {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+/* Horizontal rule */
+.prose hr {
+  border: 0;
+  border-top: 1px solid rgb(209 213 219);
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
