@@ -38,20 +38,55 @@ function MermaidDiagram({ chart, id, onFullscreen }: MermaidDiagramProps) {
           theme: "default",
           securityLevel: "loose",
           flowchart: { useMaxWidth: true, htmlLabels: true },
-          sequence: { useMaxWidth: true },
+          sequence: { useMaxWidth: true, diagramMarginX: 50, diagramMarginY: 50 },
           gantt: { useMaxWidth: true },
           journey: { useMaxWidth: true },
           timeline: { useMaxWidth: true },
+          // Increase the font size and spacing for better readability
+          themeVariables: {
+            primaryColor: "#ff6b6b",
+            primaryTextColor: "#000",
+            primaryBorderColor: "#ff6b6b",
+            lineColor: "#333",
+            secondaryColor: "#00d4aa",
+            tertiaryColor: "#fff"
+          }
         });
 
-        const result = await mermaid.render(`mermaid-${id}` as string, chart);
+        // Clean up the chart content to avoid parsing issues
+        const cleanedChart = chart
+          .trim()
+          // Remove any extra whitespace or invisible characters
+          .replace(/\r\n/g, "\n")
+          .replace(/\r/g, "\n")
+          // Fix common line break issues in arrows
+          .replace(/(\w+)->>([+\-]?\w*)\s*\n\s*([A-Za-z])/g, "$1->>$2$3")
+          // Ensure proper spacing around arrows
+          .replace(/(\w+)(->|-->|->>|-->>)(\+?\w+)/g, "$1 $2 $3")
+          // Remove trailing whitespace from lines
+          .split("\n")
+          .map((line) => line.trimEnd())
+          .join("\n");
+
+        const result = await mermaid.render(
+          `mermaid-${id}` as string,
+          cleanedChart,
+        );
         if (!cancelled && ref.current) {
           ref.current.innerHTML = result.svg;
         }
       } catch (error: any) {
         console.error("Mermaid rendering error:", error);
+        console.log("Original chart content:", chart);
         if (ref.current) {
-          ref.current.innerHTML = `<pre class="text-red-500 text-sm">Error rendering diagram: ${error?.message ?? String(error)}</pre>`;
+          ref.current.innerHTML = `<pre class="text-red-500 text-sm bg-red-50 p-3 rounded border">
+            <strong>Error rendering Mermaid diagram:</strong><br>
+            ${error?.message ?? String(error)}<br><br>
+            <details class="mt-2">
+              <summary class="cursor-pointer text-red-700 font-medium">Show diagram source</summary>
+              <code class="text-xs mt-1 block whitespace-pre-wrap">${chart.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code>
+            </details>
+          </pre>`;
         }
       }
     })();
@@ -154,6 +189,33 @@ function MarkdownWithMermaid({ content }: MarkdownWithMermaidProps) {
     chart: string;
     id: string;
   } | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(150); // Default 150% zoom
+
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 25, 400)); // Max 400%
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 25, 50)); // Min 50%
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(150); // Reset to default
+  };
+
+  const handleWheelZoom = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -25 : 25;
+      setZoomLevel(prev => Math.max(50, Math.min(400, prev + delta)));
+    }
+  };
+
+  // Reset zoom when modal closes
+  const handleCloseModal = () => {
+    setFullscreenChart(null);
+    setZoomLevel(150);
+  };
 
   // Custom CodeBlock for this component that supports fullscreen mermaid
   const CustomCodeBlock = ({
@@ -369,15 +431,56 @@ function MarkdownWithMermaid({ content }: MarkdownWithMermaidProps) {
       {/* Fullscreen Modal for Mermaid Diagrams */}
       <Modal
         isOpen={!!fullscreenChart}
-        onClose={() => setFullscreenChart(null)}
-        title="Diagram"
+        onClose={handleCloseModal}
+        title={
+          <div className="flex items-center justify-between w-full">
+            <span>Diagram</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">{zoomLevel}%</span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleZoomOut}
+                  className="px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border"
+                  title="Zoom Out (Ctrl + Mouse Wheel)"
+                >
+                  −
+                </button>
+                <button
+                  onClick={handleResetZoom}
+                  className="px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border"
+                  title="Reset Zoom"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={handleZoomIn}
+                  className="px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border"
+                  title="Zoom In (Ctrl + Mouse Wheel)"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+        }
       >
         {fullscreenChart && (
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <MermaidDiagram
-              chart={fullscreenChart.chart}
-              id={`fullscreen-${fullscreenChart.id}`}
-            />
+          <div 
+            className="w-full h-[80vh] overflow-auto p-4"
+            onWheel={handleWheelZoom}
+            style={{ cursor: 'grab' }}
+          >
+            <div className="min-w-full min-h-full flex items-center justify-center">
+              <div 
+                className="origin-center min-w-max transition-transform duration-200 ease-in-out"
+                style={{ transform: `scale(${zoomLevel / 100})` }}
+              >
+                <MermaidDiagram
+                  chart={fullscreenChart.chart}
+                  id={`fullscreen-${fullscreenChart.id}`}
+                />
+              </div>
+            </div>
           </div>
         )}
       </Modal>

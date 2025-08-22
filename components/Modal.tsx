@@ -7,7 +7,7 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  title?: string;
+  title?: string | React.ReactNode;
 }
 
 export function Modal({ isOpen, onClose, children, title }: ModalProps) {
@@ -44,7 +44,9 @@ export function Modal({ isOpen, onClose, children, title }: ModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           {title && (
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <div className="text-lg font-semibold text-gray-900 flex-1">
+              {typeof title === 'string' ? <h2>{title}</h2> : title}
+            </div>
           )}
           <button
             onClick={onClose}
